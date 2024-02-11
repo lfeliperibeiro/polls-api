@@ -7,16 +7,14 @@ export async function pollResults(app: FastifyInstance) {
     '/polls/:pollId/results',
     { websocket: true },
     (connection, request) => {
-      connection.socket.on('message', (message: string) => {
-        // inscrever apenas nas mensagens publicadas no canal com o id da enquete('pollId')
-        const getPollParams = z.object({
-          pollId: z.string().uuid(),
-        })
+      // inscrever apenas nas mensagens publicadas no canal com o id da enquete('pollId')
+      const getPollParams = z.object({
+        pollId: z.string().uuid(),
+      })
 
-        const { pollId } = getPollParams.parse(request.params)
-        voting.subscribe(pollId, (message) => {
-          connection.socket.send(JSON.stringify(message))
-        })
+      const { pollId } = getPollParams.parse(request.params)
+      voting.subscribe(pollId, (message) => {
+        connection.socket.send(JSON.stringify(message))
       })
     },
   )
